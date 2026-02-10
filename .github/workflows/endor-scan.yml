@@ -1,0 +1,56 @@
+name: Endor Labs Dependency and Secrets Scan
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch: 
+jobs:
+  scan-pr:
+    permissions:
+      contents: read # Used to check out a private repository.
+      id-token: write # Used for keyless authentication with Endor Labs
+      pull-requests: write # Required to automatically comment on PRs for new policy violations
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Setup NPM
+      uses: actions/setup-node@v6
+      with: 
+        node-version: '20.x'
+    - run: npm install
+    - name: Endor Labs Scan Pull Request
+      if: github.event_name == 'pull_request'
+      uses: endorlabs/github-action@v1.1.9
+      with:
+        namespace: 'kriti-learn'
+        scan_dependencies: true
+        pr: true
+        scan_summary_output_type: 'table'
+        enable_pr_comments: true 
+        github_token: ${{ secrets.GITHUB_TOKEN }} # Required for PR comments on new policy violations
+  scan-main:
+    permissions:
+      id-token: write
+      repository-projects: read
+      pull-requests: read
+      contents: read
+    name: endorctl-scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+    - name: Setup NPM
+      uses: actions/setup-node@v6
+      with: 
+        node-version: '20.x'
+    - run: npm install
+    - name: 'Endor Labs Scan Push to main'
+      if: ${{ github.event_name == 'push' }}
+      uses: endorlabs/github-action@v1.1.9
+      with:
+        namespace: 'kriti-learn' 
+        scan_dependencies: true
+        pr: false
+        scan_summary_output_type: 'table'
