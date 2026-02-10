@@ -6,7 +6,7 @@ on:
     branches: [ master ]
   workflow_dispatch: 
 jobs:
-  scan-pr:
+  scan:
     permissions:
       contents: read # Used to check out a private repository.
       id-token: write # Used for keyless authentication with Endor Labs
@@ -18,9 +18,13 @@ jobs:
     - name: Setup NPM
       uses: actions/setup-node@v6
       with: 
-        node-version: '20.x'
-    - run: npm install
-    - name: Endor Labs Scan Pull Request
+        node-version: '22.x'
+    - name: "Install application minimalistically"
+      run: |
+          npm install --ignore-scripts
+          cd frontend
+          npm install --ignore-scripts --legacy-peer-deps
+    - name: 'Endor Labs Scan Pull Request'
       if: github.event_name == 'pull_request'
       uses: endorlabs/github-action@v1.1.9
       with:
@@ -30,24 +34,9 @@ jobs:
         scan_summary_output_type: 'table'
         enable_pr_comments: true 
         github_token: ${{ secrets.GITHUB_TOKEN }} # Required for PR comments on new policy violations
-  scan-main:
-    permissions:
-      id-token: write
-      repository-projects: read
-      pull-requests: read
-      contents: read
-    name: endorctl-scan
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v3
-    - name: Setup NPM
-      uses: actions/setup-node@v6
-      with: 
-        node-version: '20.x'
-    - run: npm install
-    - name: 'Endor Labs Scan Push to main'
-      if: ${{ github.event_name == 'push' }}
+
+    - name: 'Endor Labs Scan Main'
+      if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
       uses: endorlabs/github-action@v1.1.9
       with:
         namespace: 'kriti-learn' 
