@@ -13,22 +13,25 @@ jobs:
       pull-requests: write # Required to automatically comment on PRs for new policy violations
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Repository
+    - name: 'Checkout Repository'
       uses: actions/checkout@v3
-    - name: Setup NPM
+      
+    - name: 'Setup NPM'
       uses: actions/setup-node@v6
       with: 
         node-version: '22.x'
-    - name: "Install application minimalistically"
+        
+    - name: 'Install application minimalistically'
       run: |
           npm install --ignore-scripts
           cd frontend
           npm install --ignore-scripts --legacy-peer-deps
+          
     - name: 'Endor Labs Scan Pull Request'
       if: github.event_name == 'pull_request'
       uses: endorlabs/github-action@v1.1.9
       with:
-        namespace: 'kriti-learn'
+        namespace: 'kriti-learn' # Change namespace
         scan_dependencies: true
         pr: true
         scan_summary_output_type: 'table'
@@ -39,7 +42,7 @@ jobs:
       if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
       uses: endorlabs/github-action@v1.1.9
       with:
-        namespace: 'kriti-learn' 
+        namespace: 'kriti-learn' # Change namespace
         scan_dependencies: true
         pr: false
         scan_summary_output_type: 'table'
