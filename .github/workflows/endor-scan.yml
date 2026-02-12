@@ -34,9 +34,11 @@ jobs:
         namespace: 'kriti-learn' # Change namespace
         scan_dependencies: true
         pr: true
+        pr_incremental: true
         scan_summary_output_type: 'table'
         enable_pr_comments: true 
         github_token: ${{ secrets.GITHUB_TOKEN }} # Required for PR comments on new policy violations
+        additional_args: '--quick-scan'
 
     - name: 'Endor Labs Scan Main'
       if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
